@@ -2,6 +2,7 @@ package es.iesjuanbosco.matriculasspring.controller;
 
 import es.iesjuanbosco.matriculasspring.entity.Alumno;
 import es.iesjuanbosco.matriculasspring.repository.AlumnoRepository;
+import lombok.RequiredArgsConstructor;
 import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,16 +13,18 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
+@RequiredArgsConstructor
+// Genera un constructor con todos los atributos final de la clase, para poder inyectar dependencias.
 @RestController
 public class AlumnoController {
 
     // Inyección de dependencias.
-    @Autowired // Spring se encarga de crear el objeto y destruirlo cuando sea necesario (ciclo de vida del objeto).
-    private AlumnoRepository alumnoRepository;
+    // @Autowired // Spring se encarga de crear el objeto y destruirlo cuando sea necesario (ciclo de vida del objeto).
+    private final AlumnoRepository alumnoRepository;
 
     @GetMapping("/alumnos") // https://localhost:8080/alumnos
-    public List<Alumno> findAll() {
-        return (List<Alumno>) alumnoRepository.findAll();
+    public ResponseEntity<List<Alumno>> findAll() {
+        return ResponseEntity.ok((List<Alumno>) alumnoRepository.findAll());
     }
 
     @GetMapping("/alumnos/{id}")
