@@ -1,10 +1,13 @@
 package es.iesjuanbosco.matriculasspring.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -28,5 +31,9 @@ public class Curso {
     public enum Nivel {
         ESO, BACHILLERATO, CFGS, CFGM,
     }
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "curso", cascade = CascadeType.REMOVE)
+    private List<Matricula> matriculas;
 }
 

@@ -100,3 +100,4 @@ dependencias y convenciones ya definidas en `pom.xml`.
 
 ## Actualización AGENTS.md
 - Mantener este archivo actualizado con la descripción del proyecto, estructura, requisitos y convenciones.
+- Al crear nuevos archivos, realizar git add "nombre_del_archivo" para incluirlos en el commit.

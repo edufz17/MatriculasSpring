@@ -22,7 +22,14 @@ public class Matricula {
     @Column
     private String cursoLectivo;
 
+    // Indica la columna de la tabla Matricula que se usará como clave foránea para la relación con Alumno
     @ManyToOne
-    @JoinColumn(name = "curso_id") // Indica la columna de la tabla Matricula que se usará como clave foránea para la relación con Curso
+    @JoinColumn(name = "alumno_id")
     private Alumno alumno;
+
+    // Indica la columna de la tabla Curso que se usará como clave foránea para la relación con Matricula
+    @ManyToOne
+    @JoinColumn(name = "curso_id")
+    private Curso curso;
+
 }
