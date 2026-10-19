@@ -32,4 +32,6 @@ public class Matricula {
     @JoinColumn(name = "curso_id")
     private Curso curso;
 
+    @ManyToOne
+    private Usuario usuario; // Usuario que ha creado la matrícula
 }

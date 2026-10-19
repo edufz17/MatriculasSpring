@@ -35,5 +35,11 @@ public class Curso {
     @JsonIgnore
     @OneToMany(mappedBy = "curso", cascade = CascadeType.REMOVE)
     private List<Matricula> matriculas;
+
+    @ManyToMany(cascade = {
+            CascadeType.PERSIST,
+            CascadeType.MERGE
+    }) // Indica que la relación es de muchos a muchos y que se deben propagar las operaciones de persistencia y fusión a las entidades relacionadas
+    private List<Materia> materias;
 }
 
