@@ -2,59 +2,97 @@ package es.iesjuanbosco.matriculasspring.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
+import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
+/*
+- Registrar qué usuario añade cada matricula
+- Añadir repositorio y controlador para Usuario (sólo registrar, sin seguridad)
+ */
+@Getter @Setter @Builder @NoArgsConstructor @AllArgsConstructor
 @Entity
-public class Usuario {
+public class Usuario implements UserDetails {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id;
 
-    @Column(length = 50, nullable = false)
+    @Column(unique = true)
     private String email;
-
-    @Column(length = 50, nullable = false)
     private String nombre;
-
-    @Column(length = 100, nullable = false)
     private String apellidos;
-
-    @Column(length = 30, nullable = false)
     private String password;
+    private String roles;
+    private LocalDate fechaNacimiento;
+    private Boolean activo;
 
-    @Column(nullable = false)
-    private String rol;
+    private LocalDateTime fechaRegistro;
 
-    @CreatedDate
-    private LocalDateTime fechaNacimiento; // Fecha de creación del usuario
-    @LastModifiedDate
-    private LocalDateTime fechaUltimaModificacion; // Fecha de la última modificación del usuario
+    private LocalDateTime fechaUltimaModificacion;
 
-    @JsonIgnore // Ignorar la propiedad "matriculas" al serializar a JSON
-    @OneToMany(mappedBy = "usuario", cascade = CascadeType.REMOVE) // Relación uno a muchos con la entidad Matricula
+    @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL)
+    private DetalleUsuario detalleUsuario;
+
+    @JsonIgnore //Al convertir a JSON, no incluir la lista de matriculas para evitar bucles infinitos
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.REMOVE)
     private List<Matricula> matriculas;
 
+    // Se ejecuta automáticamente antes de insertar un nuevo usuario
     @PrePersist
     protected void onCreate() {
-        this.fechaNacimiento = LocalDateTime.now();
+        this.fechaRegistro = LocalDateTime.now();
         this.fechaUltimaModificacion = LocalDateTime.now();
     }
 
+    // Se ejecuta automáticamente antes de actualizar un usuario existente
     @PreUpdate
     protected void onUpdate() {
+
         this.fechaUltimaModificacion = LocalDateTime.now();
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        // Convierte los roles de String a GrantedAuthority
+        List<GrantedAuthority> authorities = new ArrayList<>();
+
+        for (String role : roles.split(",")) {
+            authorities.add(new SimpleGrantedAuthority(role.trim()));
+        }
+
+        return authorities;
+
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return activo;
     }
 }

@@ -4,42 +4,56 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
-@Data
-@Builder
+@Entity
+@Getter @Setter @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
 public class Curso {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(length = 50, nullable = false)
     private String nombre;
 
-    @Column(length = 15, nullable = true)
     private String abreviatura;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "nivel", nullable = false)
     private Nivel nivel;
-
-    public enum Nivel {
-        ESO, BACHILLERATO, CFGS, CFGM,
-    }
 
     @JsonIgnore
     @OneToMany(mappedBy = "curso", cascade = CascadeType.REMOVE)
     private List<Matricula> matriculas;
 
-    @ManyToMany(cascade = {
-            CascadeType.PERSIST,
-            CascadeType.MERGE
-    }) // Indica que la relación es de muchos a muchos y que se deben propagar las operaciones de persistencia y fusión a las entidades relacionadas
-    private List<Materia> materias;
-}
+    @ManyToMany
+    @Builder.Default
+    private List<Materia> materias = new ArrayList<>();
 
+    public void addMateria(Materia materia) {
+        if (!materias.contains(materia)) {  //Si no existe ya la materia en el curso
+            materias.add(materia);
+            materia.getCursos().add(this);
+        }
+    }
+
+    public boolean removeMateria(Materia materia) {
+        if(!materias.remove(materia)) {
+            return false;
+        }
+        if (materia.getCursos() != null) {
+            materia.getCursos().remove(this);
+        }
+        return true;
+    }
+
+    public enum Nivel {
+        ESO,
+        BACHILLERATO,
+        CFGS,
+        CFGM,
+        CFGB
+    }
+}
